@@ -296,7 +296,7 @@ class PallasCallAsyncCopyTest(parameterized.TestCase):
       y2 = copy_done(x2, fut2)
       return y, y2
 
-    if not jtu.is_device_tpu_at_least(5):
+    if not jtu.is_device_tpu_at_least(7):
       self.skipTest('TPU v5+ required for async copy into VMEM')
     x = jax.random.normal(jax.random.key(0), (8, 128), dtype=jnp.float32)
     y, y2 = f(x)
