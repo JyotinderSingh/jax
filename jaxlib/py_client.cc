@@ -469,11 +469,6 @@ PyClient::CompileAndLoad(nb_class_ptr<PyClient> client, std::string mlir_module,
   mlir::MLIRContext context;
   TF_ASSIGN_OR_RETURN(mlir::OwningOpRef<mlir::ModuleOp> module,
                       ParseMlirModuleString(mlir_module, context));
-  if (options.executable_build_options.use_shardy_partitioner()) {
-    // Since Shardy is located in the middle of the XLA pipeline, we need to
-    // export it before going to HLO while preserving Shardy ops and attrs.
-    TF_RETURN_IF_ERROR(ExportShardyForHloRoundTrip(*module));
-  }
   return CompileAndLoadIfrtProgram(
       client, std::make_unique<xla::ifrt::HloProgram>(module.get()),
       MakeIfrtCompileOptions(std::move(options), std::move(executable_devices),
@@ -488,11 +483,6 @@ PyClient::CompileAndLoad(nb_class_ptr<PyClient> client, std::string mlir_module,
   mlir::MLIRContext context;
   TF_ASSIGN_OR_RETURN(mlir::OwningOpRef<mlir::ModuleOp> module,
                       ParseMlirModuleString(mlir_module, context));
-  if (options.executable_build_options.use_shardy_partitioner()) {
-    // Since Shardy is located in the middle of the XLA pipeline, we need to
-    // export it before going to HLO while preserving Shardy ops and attrs.
-    TF_RETURN_IF_ERROR(ExportShardyForHloRoundTrip(*module));
-  }
 
   std::vector<tsl::RCReference<ifrt::LoadedHostCallback>>
       ifrt_loaded_host_callbacks;
