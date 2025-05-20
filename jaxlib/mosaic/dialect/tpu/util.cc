@@ -313,4 +313,21 @@ bool canFoldMinorDimsToSize(ArrayRef<int64_t> shape, int64_t target_size) {
   return product == target_size;
 }
 
+SmallVector<Operation *> getTransitiveUsers(Value v) {
+  SmallVector<Operation *> users;
+  SmallVector<Value> candidates;
+  candidates.push_back(v);
+  while (!candidates.empty()) {
+    Value candidate = candidates.back();
+    candidates.pop_back();
+    for (const auto &user : candidate.getUsers()) {
+      if (isa<tpu::BitcastOp>(user))
+        candidates.push_back(user->getResult(0));
+      else
+        users.push_back(user);
+    }
+  }
+  return users;
+}
+
 }  // namespace mlir::tpu
