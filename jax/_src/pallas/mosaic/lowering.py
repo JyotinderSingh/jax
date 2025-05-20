@@ -61,6 +61,7 @@ from jax._src.pallas import core as pallas_core
 from jax._src.pallas import pallas_call
 from jax._src.pallas import primitives
 from jax._src.pallas import utils as pallas_utils
+from jax._src.pallas import helpers as pallas_helpers
 from jax._src.pallas.mosaic import core as tpu_core
 from jax._src.pallas.mosaic import error_handling
 from jax._src.pallas.mosaic import primitives as tpu_primitives
@@ -3765,16 +3766,14 @@ def _join_key_lowering_rule(ctx: LoweringRuleContext, *scalars, impl):
 
 @register_lowering_rule(checkify.check_p)
 def _checkify_lowering_rule(
-    ctx: LoweringRuleContext, *err_args, err_tree, debug):
-  if not pallas_core.runtime_assert_enabled():
-    if debug:
-      return []
-    else:
-      raise LoweringException(
-          "Non-debug check must be functionalized. Enable runtime asserts via"
-          " ``pl.enable_runtime_assert`` or --jax_pallas_enable_runtime_assert"
-          " or, alternatively, functionalize with ``checkify.check``."
-      )
+    ctx: LoweringRuleContext, *err_args, err_tree, debug
+):
+  del ctx  # Unused.
+
+  if not debug:
+    raise NotImplementedError("Only ``pl.debug_check``-produced checks are supported")
+  if not pallas_helpers.debug_checks_enabled():
+    return []
 
   if cf is None:
     # TODO(slebedev): Remove once the minimal jaxlib version is 0.6.1.
